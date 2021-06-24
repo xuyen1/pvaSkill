@@ -1,0 +1,45 @@
+# File: azure-pipelines.yml
+
+name: $(Build.BuildId)
+
+trigger:
+- master
+
+resources:
+  repositories:
+  - repository: templates
+    type: github
+    endpoint: TeckResources
+    name: TeckResources/EnterpriseApps-AzDoPipelineTemplates
+    ref: refs/tags/v1.5.2
+
+stages:
+- template: 'Templates/EntApps.yml@templates'
+  parameters:
+    SonarQube: false
+    Applications: 
+    - Name: 'InnoBot'
+      Portal: false
+      SolutionName: 'InnoBotDev'
+      Build:
+        Type: 'POWERPLATFORM'
+        ServiceConnection: 'Power Platform Env: InnoBot - Dev'
+        
+      Deploy:
+        Targets:
+        - Name: 'Central-CA'
+          Type: 'POWERPLATFORM'
+          Environments:
+          - Name: Test
+            ServiceConnection: 'Power Platform Env: InnoBot - Test'
+          - Name: Production
+            ServiceConnection: 'Power Platform Env: InnoBot - Prod'
+          
+
+    EnvironmentPrefix: 'InnoBot'
+
+
+    Environments:
+    - Name: 'Test'
+#    - Name: 'Staging'
+    - Name: 'Production'
